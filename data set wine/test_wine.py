@@ -5,6 +5,7 @@ from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, classification_report
+from sklearn.ensemble import RandomForestClassifier
 
 data_raw = pd.read_csv('wine_quality_last.csv')
 print(data_raw.head(20))
@@ -111,21 +112,39 @@ data_raw["free sulfur dioxide"] = normalizer.fit_transform(data_raw[["free sulfu
 data_raw['density'] = normalizer.fit_transform(data_raw[['density']])
 data_raw["pH"] = normalizer.fit_transform(data_raw[["pH"]])
 data_raw['total sulfur dioxide'] = normalizer.fit_transform(data_raw[["total sulfur dioxide"]])
+
 # %%
-label_encoder = LabelEncoder()
-label_encoder.fit(data_raw[['quality']])
-data_raw['quality'] = label_encoder.transform(data_raw[['quality']])
+# label_encoder = LabelEncoder()
+# label_encoder.fit(data_raw[['quality']])
+# data_raw['quality'] = label_encoder.transform(data_raw[['quality']])
+# # %%
+# X = data_raw[['fixed acidity', 'volatile acidity', 'citric acid', 'residual sugar', 'chlorides', 'free sulfur dioxide', 'total sulfur dioxide', 'density', 'pH', 'sulphates', 'alcohol']]
+# y = data_raw['quality']
+# # %%
+# X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=100, test_size = 0.2)
+# # %%
+# svm = SVC(kernel='linear')
+# svm.fit(X_train, y_train)
+# # %%
+# y_pred = svm.predict(X_test)
+# print(X_test)
+
 # %%
-X = data_raw[['fixed acidity', 'volatile acidity', 'citric acid', 'residual sugar', 'chlorides', 'free sulfur dioxide', 'total sulfur dioxide', 'density', 'pH', 'sulphates', 'alcohol']]
+data_raw['quality'] = data_raw['quality'].astype('category').cat.codes
+
+# Separazione delle caratteristiche e delle etichette
+X = data_raw.drop('quality', axis=1)
 y = data_raw['quality']
-# %%
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=100, test_size = 0.2)
-# %%
-svm = SVC(kernel='linear')
-svm.fit(X_train, y_train)
-# %%
-y_pred = svm.predict(X_test)
-print(X_test)
+
+# Divisione del dataset
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=76)
+
+# Addestramento del modello
+model = RandomForestClassifier()
+model.fit(X_train, y_train)
+
+# Previsioni
+y_pred = model.predict(X_test)
 # %%
 accuracy = accuracy_score(y_test, y_pred)
 print(f'Accuratezza: {accuracy:.2f}')
