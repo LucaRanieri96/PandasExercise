@@ -1,4 +1,4 @@
-
+# %%
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
@@ -6,9 +6,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, classification_report
 
-data_raw=pd.read_csv('wine_quality_last.csv')
+data_raw = pd.read_csv('wine_quality_last.csv')
 print(data_raw.head(20))
 
+# %%
 print(data_raw.describe())
 
 print(data_raw.info())
@@ -94,5 +95,38 @@ statistica["total sulfur dioxide"] = [total_sulfur_dioxide_median, total_sulfur_
 
 print(statistica.head())
 
+# %%
+normalizer = MinMaxScaler()
+label_encoder = LabelEncoder()
 
-
+data_raw["volatile acidity"] = normalizer.fit_transform(data_raw[["volatile acidity"]])
+data_raw['citric acid'] = normalizer.fit_transform(data_raw[['citric acid']])
+data_raw["fixed acidity"] = normalizer.fit_transform(data_raw[["fixed acidity"]])
+data_raw['sulphates'] = normalizer.fit_transform(data_raw[["sulphates"]])
+data_raw["alcohol"] = normalizer.fit_transform(data_raw[["alcohol"]])
+data_raw['quality'] = normalizer.fit_transform(data_raw[['quality']])
+data_raw["residual sugar"] = normalizer.fit_transform(data_raw[["residual sugar"]])
+data_raw['chlorides'] = normalizer.fit_transform(data_raw[["chlorides"]])
+data_raw["free sulfur dioxide"] = normalizer.fit_transform(data_raw[["free sulfur dioxide"]])
+data_raw['density'] = normalizer.fit_transform(data_raw[['density']])
+data_raw["pH"] = normalizer.fit_transform(data_raw[["pH"]])
+data_raw['total sulfur dioxide'] = normalizer.fit_transform(data_raw[["total sulfur dioxide"]])
+# %%
+label_encoder = LabelEncoder()
+label_encoder.fit(data_raw[['quality']])
+data_raw['quality'] = label_encoder.transform(data_raw[['quality']])
+# %%
+X = data_raw[['fixed acidity', 'volatile acidity', 'citric acid', 'residual sugar', 'chlorides', 'free sulfur dioxide', 'total sulfur dioxide', 'density', 'pH', 'sulphates', 'alcohol']]
+y = data_raw['quality']
+# %%
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=100, test_size = 0.2)
+# %%
+svm = SVC(kernel='linear')
+svm.fit(X_train, y_train)
+# %%
+y_pred = svm.predict(X_test)
+print(X_test)
+# %%
+accuracy = accuracy_score(y_test, y_pred)
+print(f'Accuratezza: {accuracy:.2f}')
+# %%
